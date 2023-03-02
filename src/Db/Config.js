@@ -1,7 +1,7 @@
 
 let config = {
     dbUrl:
-      "mongodb+srv://chetan:react717@cluster0.xdr4xbu.mongodb.net/bookings?retryWrites=true&w=majority",
+      "mongodb://localhost:27020/mydb",
   };
   
   module.exports = config;
