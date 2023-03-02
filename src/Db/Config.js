@@ -1,7 +1,7 @@
 
 let config = {
     dbUrl:
-      "mongodb://localhost:27017",
+      "mongodb://127.0.0.1:27017",
   };
   
   module.exports = config;
