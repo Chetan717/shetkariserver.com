@@ -18,40 +18,7 @@
 
 const mongoose = require("mongoose");
 
-const ReportScheama = new mongoose.Schema({
-  Report: [
-    {
-      option1: {
-        type: String,
-      },
-      problem1: {
-        type: String,
-      },
-    },
-    {
-      option: {
-        type: String,
-      },
-      problem: {
-        type: String,
-      },
-    },
-    {
-      fullname: {
-        type: String,
-      },
-      Age: {
-        type: String,
-      },
-      RefDoctor: {
-        type: String,
-      },
-      date: {
-        type: Date,
-      },
-    },
-  ],
-});
+const ReportScheama = new mongoose.Schema({},{ "strict": false});
 
 const ReportModel = new mongoose.model("ReportsData", ReportScheama);
 
