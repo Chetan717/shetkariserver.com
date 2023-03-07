@@ -7,6 +7,9 @@ const config = require("./src/Db/Config");
 
 const Datamodel = require("./src/Db/UserModel");
 const ReportModel = require("./src/Db/Reportmodel");
+const ReportModelXray = require("./src/Db/Reportmodel");
+const ReportModelSono = require("./src/Db/Reportmodel");
+const ReportModelMri = require("./src/Db/Reportmodel");
 
 app.use(express.json());
 app.use(cors());
@@ -47,6 +50,18 @@ app.post("/register", async (req, res) => {
   res.send(original);
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
 app.post("/ReportCt", async (req, res) => {
   try {
     let TicketData = new ReportModel(req.body);
@@ -73,6 +88,127 @@ app.get("/ReportCt/:id", async (req, res) => {
 
 app.delete("/ReportCt/:id", async (req, res) => {
   let deletedata = await ReportModel.deleteOne({ _id: req.params.id });
+  res.send(deletedata);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+app.post("/ReportXray", async (req, res) => {
+  try {
+    let TicketData = new ReportModelXray(req.body);
+    let result = await TicketData.save();
+    res.send(result);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.get("/ReportXray", async (req, res) => {
+  let Ticket = await ReportModelXray.find();
+  res.send(Ticket);
+});
+
+app.get("/ReportXray/:id", async (req, res) => {
+  let iddata = await ReportModelXray.findOne({ _id: req.params.id });
+  if (iddata) {
+    res.send(iddata);
+  } else {
+    res.send("data no found");
+  }
+});
+
+app.delete("/ReportXray/:id", async (req, res) => {
+  let deletedata = await ReportModelXray.deleteOne({ _id: req.params.id });
+  res.send(deletedata);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+app.post("/ReportSono", async (req, res) => {
+  try {
+    let TicketData = new ReportModelSono(req.body);
+    let result = await TicketData.save();
+    res.send(result);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.get("/ReportSono", async (req, res) => {
+  let Ticket = await ReportModelSono.find();
+  res.send(Ticket);
+});
+
+app.get("/ReportSono/:id", async (req, res) => {
+  let iddata = await ReportModelSono.findOne({ _id: req.params.id });
+  if (iddata) {
+    res.send(iddata);
+  } else {
+    res.send("data no found");
+  }
+});
+
+app.delete("/ReportSono/:id", async (req, res) => {
+  let deletedata = await ReportModelSono.deleteOne({ _id: req.params.id });
+  res.send(deletedata);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.post("/ReportMri", async (req, res) => {
+  try {
+    let TicketData = new ReportModelMri(req.body);
+    let result = await TicketData.save();
+    res.send(result);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.get("/ReportMri", async (req, res) => {
+  let Ticket = await ReportModelMri.find();
+  res.send(Ticket);
+});
+
+app.get("/ReportMri/:id", async (req, res) => {
+  let iddata = await ReportModelMri.findOne({ _id: req.params.id });
+  if (iddata) {
+    res.send(iddata);
+  } else {
+    res.send("data no found");
+  }
+});
+
+app.delete("/ReportMri/:id", async (req, res) => {
+  let deletedata = await ReportModelMri.deleteOne({ _id: req.params.id });
   res.send(deletedata);
 });
 
