@@ -6,10 +6,11 @@ const app = express();
 const config = require("./src/Db/Config");
 
 const Datamodel = require("./src/Db/UserModel");
+
 const ReportModel = require("./src/Db/Reportmodel");
-const ReportModelXray = require("./src/Db/Reportmodel");
-const ReportModelSono = require("./src/Db/Reportmodel");
-const ReportModelMri = require("./src/Db/Reportmodel");
+const ReportModelXray = require("./src/Db/XrayModel");
+const ReportModelSono = require("./src/Db/Sonomodel");
+const ReportModelMri = require("./src/Db/MriModel");
 
 app.use(express.json());
 app.use(cors());
