@@ -4,13 +4,7 @@ const mongoose = require("mongoose");
 const port = process.env.PORT || 4000;
 const app = express();
 const config = require("./src/Db/Config");
-
-const Datamodel = require("./src/Db/UserModel");
-
-const ReportModel = require("./src/Db/Reportmodel");
-const ReportModelXray = require("./src/Db/XrayModel");
-const ReportModelSono = require("./src/Db/Sonomodel");
-const ReportModelMri = require("./src/Db/MriModel");
+const FarmBlog = require("./src/Db/FarmBlog")
 
 app.use(express.json());
 app.use(cors());
@@ -30,26 +24,6 @@ app.get("/", (req, res) => {
   res.send("hello Photo grapher!");
 });
 
-app.post("/login", async (req, res) => {
-  let user = await Datamodel.find(req.body).select("-pass");
-
-  if (user) {
-    res.send(user);
-  } else {
-    res.send("user not found");
-  }
-});
-
-app.post("/register", async (req, res) => {
-  let userdata = new Datamodel(req.body);
-  let result = await userdata.save();
-
-  let original = result.toObject();
-
-  delete original.pass;
-
-  res.send(original);
-});
 
 
 
@@ -58,28 +32,74 @@ app.post("/register", async (req, res) => {
 
 
 
-
-
-
-
-
-app.post("/ReportCt", async (req, res) => {
+app.post("/FarmBlog", async (req, res) => {
   try {
-    let TicketData = new ReportModel(req.body);
-    let result = await TicketData.save();
+    let FarmBlogpt = new FarmBlog(req.body);
+    let result = await FarmBlogpt.save();
     res.send(result);
   } catch (error) {
     console.log(error);
   }
 });
 
-app.get("/ReportCt", async (req, res) => {
-  let Ticket = await ReportModel.find();
-  res.send(Ticket);
+
+app.get("/FarmBlog", async (req, res) => {
+  let FarmBlogget = await FarmBlog.find();
+  res.send(FarmBlogget);
 });
 
-app.get("/ReportCt/:id", async (req, res) => {
-  let iddata = await ReportModel.findOne({ _id: req.params.id });
+
+// app.get("FarmBlog/:id?", function (req, res) {
+//   //Pagination For number Of receords on page
+//   if (req.params.id) {
+//       //Case For Counting Number OF Users
+//       FarmBlog.find({})
+//       .count()
+//       .then(data => {
+//           res.status(200).send({
+//               "cnt" : data
+//           })
+//       })
+//       .catch(err => {
+//          res.status(400).send({
+//              "err" : err
+//          })
+//       })
+//   }
+// })
+
+// router.post("/FarmBlog",function(req,res){
+//   const pagination = req.body.pagination ? parseInt(req.body.pagination) : 10;
+//   //PageNumber From which Page to Start 
+//   const pageNumber = req.body.page ? parseInt(req.body.page) : 1;
+//   userss.find({})
+//       //skip takes argument to skip number of entries 
+//       .sort({"id" : 1})
+//       .skip((pageNumber - 1) * pagination)
+//       //limit is number of Records we want to display
+//       .limit(pagination)
+//       .then(data => {
+//           res.status(200).send({
+//               "users": data
+//           })
+//       })
+//       .catch(err => {
+//           res.status(400).send({
+//               "err": err
+//           })
+//       })
+// })
+
+
+
+
+
+
+
+
+
+app.get("/FarmBlog/:id", async (req, res) => {
+  let iddata = await FarmBlog.findOne({ _id: req.params.id });
   if (iddata) {
     res.send(iddata);
   } else {
@@ -87,8 +107,8 @@ app.get("/ReportCt/:id", async (req, res) => {
   }
 });
 
-app.delete("/ReportCt/:id", async (req, res) => {
-  let deletedata = await ReportModel.deleteOne({ _id: req.params.id });
+app.delete("/FarmBlog/:id", async (req, res) => {
+  let deletedata = await FarmBlog.deleteOne({ _id: req.params.id });
   res.send(deletedata);
 });
 
@@ -103,114 +123,5 @@ app.delete("/ReportCt/:id", async (req, res) => {
 
 
 
-app.post("/ReportXray", async (req, res) => {
-  try {
-    let TicketData = new ReportModelXray(req.body);
-    let result = await TicketData.save();
-    res.send(result);
-  } catch (error) {
-    console.log(error);
-  }
-});
-
-app.get("/ReportXray", async (req, res) => {
-  let Ticket = await ReportModelXray.find();
-  res.send(Ticket);
-});
-
-app.get("/ReportXray/:id", async (req, res) => {
-  let iddata = await ReportModelXray.findOne({ _id: req.params.id });
-  if (iddata) {
-    res.send(iddata);
-  } else {
-    res.send("data no found");
-  }
-});
-
-app.delete("/ReportXray/:id", async (req, res) => {
-  let deletedata = await ReportModelXray.deleteOne({ _id: req.params.id });
-  res.send(deletedata);
-});
-
-
-
-
-
-
-
-
-
-
-
-
-app.post("/ReportSono", async (req, res) => {
-  try {
-    let TicketData = new ReportModelSono(req.body);
-    let result = await TicketData.save();
-    res.send(result);
-  } catch (error) {
-    console.log(error);
-  }
-});
-
-app.get("/ReportSono", async (req, res) => {
-  let Ticket = await ReportModelSono.find();
-  res.send(Ticket);
-});
-
-app.get("/ReportSono/:id", async (req, res) => {
-  let iddata = await ReportModelSono.findOne({ _id: req.params.id });
-  if (iddata) {
-    res.send(iddata);
-  } else {
-    res.send("data no found");
-  }
-});
-
-app.delete("/ReportSono/:id", async (req, res) => {
-  let deletedata = await ReportModelSono.deleteOne({ _id: req.params.id });
-  res.send(deletedata);
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-app.post("/ReportMri", async (req, res) => {
-  try {
-    let TicketData = new ReportModelMri(req.body);
-    let result = await TicketData.save();
-    res.send(result);
-  } catch (error) {
-    console.log(error);
-  }
-});
-
-app.get("/ReportMri", async (req, res) => {
-  let Ticket = await ReportModelMri.find();
-  res.send(Ticket);
-});
-
-app.get("/ReportMri/:id", async (req, res) => {
-  let iddata = await ReportModelMri.findOne({ _id: req.params.id });
-  if (iddata) {
-    res.send(iddata);
-  } else {
-    res.send("data no found");
-  }
-});
-
-app.delete("/ReportMri/:id", async (req, res) => {
-  let deletedata = await ReportModelMri.deleteOne({ _id: req.params.id });
-  res.send(deletedata);
-});
 
 app.listen(port);

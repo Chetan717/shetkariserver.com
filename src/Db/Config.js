@@ -1,7 +1,7 @@
 
 let config = {
     dbUrl:
-      "mongodb+srv://chaudhari:chaudhari12@cluster0.n9js1zu.mongodb.net/mern?retryWrites=true&w=majority",
+      "mongodb+srv://chaitanyachau:Mern717@cluster0.xoi0z3b.mongodb.net/blogapp?retryWrites=true&w=majority",
   };
   
   module.exports = config;
