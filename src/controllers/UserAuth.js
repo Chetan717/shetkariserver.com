@@ -3,103 +3,9 @@ const Jwt = require("jsonwebtoken"); // for generating jwt token
 const bcrypt = require("bcrypt"); //for decript the values
 const secreat_key = "Next@717";
 const dotenv = require("dotenv");
+const { Auth } = require('two-step-auth');
 dotenv.config({ path: "../../src/.env" });
-
-// const speakeasy = require("speakeasy"); // for generating OTP
-
-// const twilio = require("twilio");
-
-// const SignupUser = async (req, res) => {
-//   try {
-//     const { name, email, password, mobile, acctype } = req.body;
-
-//     const user = await UserAuthModal.findOne({ email });
-//     if (user) {
-//       return res.status(409).json({ message: "Email is already registered" });
-//     }
-
-//     const generateAndSendOTP = async (mobile) => {
-//       try {
-//         const otpSecret = speakeasy.generateSecret({
-//           length: 4,
-//           symbols: false,
-//           alphanumeric: false,
-//         }).base32;
-
-//         const otp = speakeasy.totp({
-//           secret: toString(otpSecret), // generate and store a secret key
-//           encoding: "base32",
-//           step: 300, // OTP validity duration (in seconds)
-//         });
-
-//         // Send the OTP via SMS using Twilio
-//         const twilioClient = twilio(
-//           process.env.TWILIO_ACCOUNT_SID,
-//           process.env.TWILIO_AUTH_TOKEN
-//         );
-//         await twilioClient.messages.create({
-//           body: `Your OTP is: ${otp}`,
-//           from: '+917387427755',
-//           to: Number(7387427755),
-//         });
-
-//         return otp;
-//       } catch (error) {
-//         console.log(error);
-//         throw new Error("Failed to send OTP");
-
-//       }
-//     };
-
-//     const otp = await generateAndSendOTP(mobile);
-
-//     const encryptedPass = await bcrypt.hash(password, 10);
-
-//     const newUser = new UserAuthModal({
-//       name,
-//       password: encryptedPass,
-//       email,
-//       mobile,
-//       otp,
-//       acctype,
-//     });
-
-//     await newUser.save();
-
-//     res.status(201).json({ message: "Sign up successfully", otp });
-//   } catch (error) {
-//     res.status(500).json({ message: "Something went wrong" });
-//   }
-// };
-
-// const verifyOTP = async (req, res) => {
-//   try {
-//     const { email, otp } = req.body;
-
-//     const user = await UserAuthModal.findOne({ email });
-
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     if (user.otp !== otp) {
-//       return res.status(401).json({ message: "Invalid OTP" });
-//     }
-
-//     // Clear the OTP after successful verification
-//     user.otp = undefined;
-
-//     await user.save();
-
-//     // Continue with the sign-in process (generate token, etc.)
-//     // ...
-
-//     res.status(200).json({ message: "OTP verified successfully" });
-//   } catch (error) {
-//     res.status(500).json({ message: "Something went wrong" });
-//   }
-// };
-
+const nodemailer = require("nodemailer")
 //getting all user data on Route /User
 const handleAuthRequest = (req, res, next) => {
   const token = req.headers.authorization?.replace("Bearer ", "");
@@ -162,42 +68,105 @@ const SignupUser = async (req, res) => {
 };
 
 // sign in fuction for route /User/Signin
+
 const SignInUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, otp } = req.body;
 
     // first find the user
     const findUser = await UserAuthModal.findOne({ email });
 
     // if user not found then throw error "User not Found"
     if (!findUser) {
-      res.status(401).json({ massage: "User Not Found" });
+      return res.status(401).json({ message: "User Not Found" });
     }
 
-    // if user found check the password and compare
-    const PasswordCheck = await bcrypt.compare(password, findUser.password);
-
-    // if password is invalid send error " invalid password"
-    if (!PasswordCheck) {
-      return res.status(401).json({ massage: "invalid Password" });
+    if (password) {
+      // Signing in with password
+      // if password is invalid send error "invalid password"
+      const passwordCheck = await bcrypt.compare(password, findUser.password);
+      if (!passwordCheck) {
+        return res.status(401).json({ message: "Invalid Password" });
+      }
+    } else if (otp) {
+      // Signing in with OTP
+      // Check if the provided OTP matches the user's OTP
+      if (otp !== findUser.otp) {
+        return res.status(401).json({ message: "Invalid OTP" });
+      }
+    } else {
+      return res.status(400).json({ message: "Password or OTP is required" });
     }
-    // user is exit and password is match then send token.
+
+    // Clear the OTP after successful sign-in
+    findUser.otp = undefined;
+    await findUser.save();
+
+    // user is found and password or OTP is valid, then send token.
 
     // token for login
-    const TokenForLogin = Jwt.sign({ userId: findUser._id }, secreat_key, {
+    const tokenForLogin = Jwt.sign({ userId: findUser._id }, secreat_key, {
       expiresIn: "1h",
     });
 
-    res.status(200).json(TokenForLogin);
+    res.status(200).json(tokenForLogin);
   } catch (error) {
-    res.status(500).json({ massage: "Something went wrong !" });
+    res.status(500).json({ message: "Something went wrong!" });
   }
 };
+
+
+
+const requestOTP = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await UserAuthModal.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    // Generate a random OTP
+    const otp = Math.floor(100000 + Math.random() * 900000);
+
+    // Send the OTP to the user
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "OTP Verification",
+      text: `Your OTP is: ${otp}`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    // Save the generated OTP to the user in the database
+    user.otp = otp;
+    await user.save();
+
+    res.status(200).json({ message: "OTP sent successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong!" });
+    console.log(error);
+  }
+};
+
 
 module.exports = {
   SignupUser,
   SignInUser,
   handleAuthRequest,
   userdata,
+  requestOTP,
   // verifyOTP,
 };

@@ -1,8 +1,8 @@
 const express = require("express");
 const UserAuthModal = require("../modals/UserAuthModel")
 const router = express.Router();
-
-const { SignInUser, SignupUser, handleAuthRequest,userdata,verifyOTP } = require("../controllers/UserAuth");
+const nodemailer = require("nodemailer");
+const { SignInUser, SignupUser, handleAuthRequest,userdata,requestOTP } = require("../controllers/UserAuth");
 
 router.route("/UserDetail").get(userdata);
 
@@ -28,7 +28,7 @@ router.get("/auth", handleAuthRequest, async (req, res) => {
 
 
 router.route("/Signup").post(SignupUser);
-// router.route("/Signup/verify").post(verifyOTP);
+ router.route("/Signup/verify").post(requestOTP);
 
 router.route("/Signin").post(SignInUser);
 

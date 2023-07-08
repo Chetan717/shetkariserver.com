@@ -26,6 +26,10 @@ const UserAuthShema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  otp: {
+    type: Number,
+    required: true,
+  },
 });
 
 const UserAuthModal = new mongoose.model("user", UserAuthShema);
