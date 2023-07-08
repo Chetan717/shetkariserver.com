@@ -1,4 +1,4 @@
-const instance = require("../../server.js");
+const instance = require("../../index.js");
 const crypto = require("crypto");
 const Orderfinal = require("../modals/OrderProModel");
 const OrdersPayment = require("../modals/OrdersPayment");
